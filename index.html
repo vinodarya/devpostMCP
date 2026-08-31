@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Article Search — WebMCP Declarative Demo</title>
+
+
+<body>
+  <main>
+    <h1>Search Articles</h1>
+    
+    <!-- Declarative WebMCP Form Annotation -->
+
+<script>
+function enableMCP()
+{
+alert("hello")
+
+// 1. Select the form element
+const myForm = document.querySelector("#requestForm");
+
+// 2. Use setAttribute(attributeName, value)
+myForm.setAttribute("toolname", "supportRequestTool");
+myForm.setAttribute("tooldescription", "Submit a request for support."); 
+
+alert("hello2")
+}
+</script>
+
+<form action="/submit" id ="requestForm">
+
+  <label for="firstName">First Name</label>
+  <input type=text name=firstName>
+
+  <label for="lastName">Last Name</label>
+  <input type=text name=lastName>
+
+
+  <button type=submit>Submit</button>
+</form> 
+
+  <button type=MCP onClick=enableMCP()>MCP</button>
+
+
+  </main>
+
+</html>
