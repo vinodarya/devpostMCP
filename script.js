@@ -6,33 +6,39 @@ const STORAGE_KEY = "familyRelationshipNetwork";
 const DEMO_INITIALIZED_KEY = "familyRelationshipNetworkDemoInitialized";
 
 /* =====================================
-LOCAL STORAGE
-====================================== */
-
-
-/* =====================================
 Declarative WebMCP Form Annotation
 ====================================== */
 function enableMCP() {
   alert("hello");
 
-  // Select the contact form from index.html
   const myForm = document.querySelector("#contactForm");
 
-  // Make sure the form exists
   if (!myForm) {
     console.error("Contact form #contactForm was not found.");
     return;
   }
 
-  // Add MCP attributes to the form
   myForm.setAttribute("toolname", "supportRequestTool");
 
   myForm.setAttribute("tooldescription", "Submit a request for support.");
 
+  console.log("MCP enabled on:", myForm);
+
   alert("hello2");
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  const enableMcpBtn = document.querySelector("#enableMcpBtn");
+
+  if (enableMcpBtn) {
+    enableMcpBtn.addEventListener("click", enableMCP);
+  }
+});
+
+
+/* =====================================
+Mock Data
+====================================== */
 
 function createMockData() {
   return [
