@@ -1,47 +1,183 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>Article Search — WebMCP Declarative Demo</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Family Relationship Network</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
+  <body>
+    <header class="header">
+      <div class="header-content">
+        <h1>Family Relationship Network</h1>
+        <p>Manage your family and professional relationships</p>
+      </div>
+    </header>
 
-<body>
-  <main>
-    <h1>Search Articles</h1>
-    
-    <!-- Declarative WebMCP Form Annotation -->
+    <main class="container">
+      <div class="top-bar">
+        <h2>My Relationship Network</h2>
+        <button type="button" class="btn btn-primary" id="addContactBtn">
+          + Add Contact
+        </button>
+        <button type="button" class="btn btn-primary" id="enableMcpBtn">
+          Enable MCP
+        </button>
+      </div>
 
-<script>
-function enableMCP()
-{
-alert("hello")
+      <!-- ADD CONTACT FORM -->
 
-// 1. Select the form element
-const myForm = document.querySelector("#requestForm");
+      <div class="form-card" id="contactFormCard">
+        <h2 class="form-title">Add New Contact</h2>
 
-// 2. Use setAttribute(attributeName, value)
-myForm.setAttribute("toolname", "supportRequestTool");
-myForm.setAttribute("tooldescription", "Submit a request for support."); 
+        <form id="contactForm">
+          <!-- RELATIONSHIP CATEGORY -->
 
-alert("hello2")
-}
-</script>
+          <div class="form-section">
+            <h3>1. Relationship Category</h3>
 
-<form action="/submit" id ="requestForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="category"> Category </label>
 
-  <label for="firstName">First Name</label>
-  <input type=text name=firstName>
+                <select id="category" required>
+                  <option value="">Select Category</option>
 
-  <label for="lastName">Last Name</label>
-  <input type=text name=lastName>
+                  <option value="family">Family</option>
 
+                  <option value="professional">Professional</option>
+                </select>
+              </div>
 
-  <button type=submit>Submit</button>
-</form> 
+              <div class="form-group">
+                <label for="relationship"> Relationship </label>
 
-  <button type=MCP onClick=enableMCP()>MCP</button>
+                <select id="relationship" required>
+                  <option value="">Select Relationship</option>
+                </select>
+              </div>
+            </div>
 
+            <div class="category-description" id="categoryDescription"></div>
+          </div>
 
-  </main>
+          <!-- BASIC INFORMATION -->
 
+          <div class="form-section">
+            <h3>2. Basic Information</h3>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="firstName"> First Name * </label>
+
+                <input
+                  type="text"
+                  id="firstName"
+                  placeholder="Enter first name"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="lastName"> Last Name * </label>
+
+                <input
+                  type="text"
+                  id="lastName"
+                  placeholder="Enter last name"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="dob"> Date of Birth </label>
+
+                <input type="date" id="dob" />
+              </div>
+            </div>
+          </div>
+
+          <!-- CONTACT -->
+
+          <div class="form-section">
+            <h3>3. Contact & Location</h3>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="phone"> Phone Number </label>
+
+                <input type="tel" id="phone" placeholder="+65 1234 5678" />
+              </div>
+
+              <div class="form-group">
+                <label for="email"> Email Address </label>
+
+                <input type="email" id="email" placeholder="name@example.com" />
+              </div>
+            </div>
+          </div>
+
+          <!-- CONNECT TO EXISTING PERSON -->
+
+          <div class="form-section" id="connectionSection">
+            <h3>4. Connect to Existing Person in Family Network</h3>
+
+            <div class="form-grid">
+              <div class="form-group full">
+                <label for="connectedPerson"> Connect With </label>
+
+                <select id="connectedPerson">
+                  <option value="">No existing connection</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="connection-help" id="connectionHelp"></div>
+          </div>
+
+          <!-- FORM ACTIONS -->
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="cancelBtn">
+              Cancel
+            </button>
+
+            <button type="submit" class="btn btn-primary">Save Contact</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- RELATIONSHIP TREE -->
+
+      <section class="tree-section">
+        <div class="tree-header">
+          <h2>Relationship Tree</h2>
+
+          <button type="button" class="btn btn-danger" id="clearBtn">
+            Clear All
+          </button>
+        </div>
+
+        <div class="tree-container">
+          <div class="empty-state" id="emptyState">
+            <div class="empty-state-icon">👨‍👩‍👧‍👦</div>
+
+            <h3>No contacts added yet</h3>
+
+            <p>Click "Add Contact" to build your relationship network.</p>
+          </div>
+
+          <div class="tree" id="relationshipTree" style="display: none"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- NOTIFICATION -->
+    <div class="notification" id="notification">
+      Contact saved successfully!
+    </div>
+
+    <script src="./script.js" defer></script>
+  </body>
 </html>
