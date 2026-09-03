@@ -9,22 +9,41 @@ const DEMO_INITIALIZED_KEY = "familyRelationshipNetworkDemoInitialized";
 Declarative WebMCP Form Annotation
 ====================================== */
 function enableMCP() {
-  const myForm = document.querySelector("#contactForm");
-
-  if (!myForm) {
-    console.error("Contact form #contactForm was not found.");
-    return;
-  }
-
   if (!document.modelContext) {
     console.error("ModelContext API not available.");
+    alert("ModelContext API not available. MCP tools could not be loaded.");
     return;
   }
 
+  const enableMcpBtn = document.querySelector("#enableMcpBtn");
+  if (enableMcpBtn) {
+    enableMcpBtn.disabled = true;
+    enableMcpBtn.textContent = "MCP Enabled ✓";
+  }
+
+  /* Tool 1: open_add_contact_form */
   document.modelContext.registerTool({
-    name: "add_contact",
-    title: "Add Contact",
-    description: "Submit a new contact to the family relationship network with name, relationship, and contact details.",
+    name: "open_add_contact_form",
+    title: "Open Add Contact Form",
+    description: "Open the Add Contact form so the user can enter a new contact.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    },
+    annotations: {
+      readOnlyHint: false
+    },
+    execute: async () => {
+      return openAddContactForm();
+    }
+  });
+
+  /* Tool 2: save_contact */
+  document.modelContext.registerTool({
+    name: "save_contact",
+    title: "Save Contact",
+    description: "Save a new contact to the family relationship network with name, relationship, and contact details.",
     inputSchema: {
       type: "object",
       properties: {
@@ -39,15 +58,15 @@ function enableMCP() {
         category: {
           type: "string",
           enum: ["family", "professional"],
-          description: "Relationship category"
+          description: "Relationship category (family or professional)"
         },
         relationship: {
           type: "string",
-          description: "Type of relationship"
+          description: "Type of relationship (e.g., Father, Mother, Brother, Sister, Doctor, Lawyer)"
         },
         dob: {
           type: "string",
-          description: "Date of birth (YYYY-MM-DD format)"
+          description: "Date of birth in YYYY-MM-DD format"
         },
         phone: {
           type: "string",
@@ -59,7 +78,7 @@ function enableMCP() {
         },
         parentId: {
           type: "string",
-          description: "ID of connected family member (for family category)"
+          description: "ID of connected family member (required for family category except 'You')"
         }
       },
       required: ["firstName", "lastName", "category", "relationship"],
@@ -70,21 +89,32 @@ function enableMCP() {
     },
     execute: async (params) => {
       const contacts = getContacts();
-      const validation = validateFamilyRelationship(contacts, params.relationship, params.parentId);
 
-      if (!validation.valid) {
+      if (!params.firstName.trim() || !params.lastName.trim()) {
         return {
           content: [{
             type: "text",
-            text: `Error: ${validation.message}`
+            text: "Error: First name and last name are required."
           }]
         };
       }
 
+      if (params.category === "family") {
+        const validation = validateFamilyRelationship(contacts, params.relationship, params.parentId);
+        if (!validation.valid) {
+          return {
+            content: [{
+              type: "text",
+              text: `Error: ${validation.message}`
+            }]
+          };
+        }
+      }
+
       const newContact = {
         id: createId(),
-        firstName: params.firstName,
-        lastName: params.lastName,
+        firstName: params.firstName.trim(),
+        lastName: params.lastName.trim(),
         dob: params.dob || "",
         phone: params.phone || "",
         email: params.email || "",
@@ -101,20 +131,107 @@ function enableMCP() {
       return {
         content: [{
           type: "text",
-          text: `Successfully added ${params.firstName} ${params.lastName} as ${params.relationship}.`
+          text: `Successfully saved ${params.firstName} ${params.lastName} as ${params.relationship}.`
         }]
       };
     }
   });
 
-  console.log("MCP tools registered on contact form");
+  /* Tool 3: cancel_add_contact */
+  document.modelContext.registerTool({
+    name: "cancel_add_contact",
+    title: "Cancel Add Contact",
+    description: "Cancel the Add Contact form, reset all entered contact information, and close the form.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    },
+    annotations: {
+      readOnlyHint: false
+    },
+    execute: async () => {
+      return cancelAddContactForm();
+    }
+  });
+
+  /* Tool 4: clear_all_contact */
+  document.modelContext.registerTool({
+    name: "clear_all_contact",
+    title: "Clear All Contacts",
+    description: "Permanently delete all contacts from the contact list. This is a destructive action and cannot be undone.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    },
+    annotations: {
+      readOnlyHint: false
+    },
+    execute: async () => {
+      const contacts = getContacts();
+
+      if (contacts.length === 0) {
+        return {
+          content: [{
+            type: "text",
+            text: "There are no contacts to delete."
+          }]
+        };
+      }
+
+      clearAllContacts();
+
+      return {
+        content: [{
+          type: "text",
+          text: `Successfully deleted ${contacts.length} contact(s).`
+        }]
+      };
+    }
+  });
+
+  /* Tool 5: reload_all_contact */
+  document.modelContext.registerTool({
+    name: "reload_all_contact",
+    title: "Reload All Contacts",
+    description: "Reload and refresh the relationship tree to display all contacts.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    },
+    annotations: {
+      readOnlyHint: true
+    },
+    execute: async () => {
+      renderRelationshipTree();
+      updateConnectedPersonDropdown();
+
+      const contacts = getContacts();
+      return {
+        content: [{
+          type: "text",
+          text: `Relationship tree reloaded. Total contacts: ${contacts.length}`
+        }]
+      };
+    }
+  });
+
+  console.log("All MCP tools registered successfully");
+  return {
+    success: true,
+    message: "All MCP tools have been loaded and registered."
+  };
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const enableMcpBtn = document.querySelector("#enableMcpBtn");
 
   if (enableMcpBtn) {
-    enableMcpBtn.addEventListener("click", enableMCP);
+    enableMcpBtn.addEventListener("click", () => {
+      enableMCP();
+    });
   }
 });
 
@@ -372,30 +489,6 @@ addContactBtn.addEventListener("click", () => {
   openAddContactForm();
 });
 
-// Expose the same action to AI agents through WebMCP
-if ("modelContext" in document) {
-  document.modelContext.registerTool({
-    name: "open_add_contact_form",
-    title: "Open Add Contact Form",
-    description:
-      "Open the Add Contact form so the user can enter a new contact.",
-
-    inputSchema: {
-      type: "object",
-      properties: {},
-      additionalProperties: false,
-    },
-
-    annotations: {
-      readOnlyHint: false,
-    },
-
-    execute: async () => {
-      return openAddContactForm();
-    },
-  });
-}
-
 /* =====================================
 CANCEL
 ====================================== */
@@ -414,30 +507,6 @@ function cancelAddContactForm() {
 cancelBtn.addEventListener("click", () => {
   cancelAddContactForm();
 });
-
-// Expose the action through WebMCP
-if ("modelContext" in document) {
-  document.modelContext.registerTool({
-    name: "cancel_add_contact",
-    title: "Cancel Add Contact",
-    description:
-      "Cancel the Add Contact form, reset all entered contact information, and close the form.",
-
-    inputSchema: {
-      type: "object",
-      properties: {},
-      additionalProperties: false,
-    },
-
-    annotations: {
-      readOnlyHint: false,
-    },
-
-    execute: async () => {
-      return cancelAddContactForm();
-    },
-  });
-}
 
 /* =====================================
 RESET FORM
@@ -1083,55 +1152,6 @@ function clearAllContacts() {
   updateConnectedPersonDropdown();
 
   showNotification("All contacts have been deleted.");
-}
-
-// WebMCP Imperative API
-if (document.modelContext) {
-  document.modelContext.registerTool({
-    name: "clear_all_contacts",
-
-    title: "Clear all contacts",
-
-    description:
-      "Permanently delete all contacts from the contact list. " +
-      "This is a destructive action and cannot be undone.",
-
-    inputSchema: {
-      type: "object",
-      properties: {},
-      additionalProperties: false,
-    },
-
-    annotations: {
-      readOnlyHint: false,
-    },
-
-    execute: async () => {
-      const contacts = getContacts();
-
-      if (contacts.length === 0) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: "There are no contacts to delete.",
-            },
-          ],
-        };
-      }
-
-      clearAllContacts();
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Successfully deleted ${contacts.length} contact(s).`,
-          },
-        ],
-      };
-    },
-  });
 }
 
 /* =====================================
