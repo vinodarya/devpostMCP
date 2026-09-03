@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-
 /* =====================================
 Mock Data
 ====================================== */
@@ -269,7 +268,7 @@ const relationshipDelta = {
 SHOW FORM
 ====================================== */
 
-addContactBtn.addEventListener("click", () => {
+function openAddContactForm() {
   contactFormCard.classList.add("active");
 
   updateConnectedPersonDropdown();
@@ -278,16 +277,84 @@ addContactBtn.addEventListener("click", () => {
     top: contactFormCard.offsetTop - 20,
     behavior: "smooth",
   });
+
+  return {
+    success: true,
+    message: "Add contact form is now open.",
+  };
+}
+
+// Existing button behavior
+addContactBtn.addEventListener("click", () => {
+  openAddContactForm();
 });
+
+// Expose the same action to AI agents through WebMCP
+if ("modelContext" in document) {
+  document.modelContext.registerTool({
+    name: "open_add_contact_form",
+    title: "Open Add Contact Form",
+    description:
+      "Open the Add Contact form so the user can enter a new contact.",
+
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false,
+    },
+
+    annotations: {
+      readOnlyHint: false,
+    },
+
+    execute: async () => {
+      return openAddContactForm();
+    },
+  });
+}
 
 /* =====================================
 CANCEL
 ====================================== */
 
-cancelBtn.addEventListener("click", () => {
+function cancelAddContactForm() {
   resetForm();
   contactFormCard.classList.remove("active");
+
+  return {
+    success: true,
+    message: "Add contact form was cancelled and reset.",
+  };
+}
+
+// Existing button behavior
+cancelBtn.addEventListener("click", () => {
+  cancelAddContactForm();
 });
+
+// Expose the action through WebMCP
+if ("modelContext" in document) {
+  document.modelContext.registerTool({
+    name: "cancel_add_contact",
+    title: "Cancel Add Contact",
+    description:
+      "Cancel the Add Contact form, reset all entered contact information, and close the form.",
+
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false,
+    },
+
+    annotations: {
+      readOnlyHint: false,
+    },
+
+    execute: async () => {
+      return cancelAddContactForm();
+    },
+  });
+}
 
 /* =====================================
 RESET FORM
