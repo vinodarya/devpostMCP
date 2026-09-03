@@ -307,18 +307,43 @@ if ("modelContext" in document) {
                 description: "The last name of the contact."
             },
         dob: {
-                type: "date",
-                description: "Enter date of birth"
-            },
+            type: "string",
+            format: "date",
+            description: "The contact's date of birth."
+        },
+
         phone: {
-                type: "tel",
-                description: "Enter phone number"
-            },
+            type: "string",
+            description: "The contact's phone number."
+        },
+
         email: {
-                type: "email",
-                description: "Enter email address"
-            },
-        required: ["firstName", "lastName"]
+            type: "string",
+            format: "email",
+            description: "The contact's email address."
+        },
+
+        category: {
+            type: "string",
+            enum: ["family", "professional"],
+            description: "The relationship category."
+        },
+
+        relationship: {
+            type: "string",
+            description: "The contact's relationship."
+        },
+        parentId: {
+            type: ["string", "null"],
+            description: "The ID of the family member this contact is connected to."
+        }
+      }, 
+        required: [
+        "firstName",
+        "lastName",
+        "category",
+        "relationship"
+    ]
       },
       additionalProperties: false,
     },
@@ -327,7 +352,17 @@ if ("modelContext" in document) {
       readOnlyHint: false,
     },
 
-    execute: async () => {
+    execute: async ({
+    firstName,
+    lastName,
+    dob,
+    phone,
+    email,
+    category,
+    relationship,
+    parentId
+      
+    }) => {
       return openAddContactForm();
     },
   });
