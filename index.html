@@ -43,7 +43,7 @@
               <div class="form-group">
                 <label for="category"> Category </label>
                 <select id="category" required
-                tool-param-description="Select the relationship category">
+                toolparamdescription="Select the relationship category">
 
                   <option value="">Select Category</option>
                   <option value="family">Family</option>
@@ -54,7 +54,7 @@
               <div class="form-group">
                 <label for="relationship"> Relationship </label>
                 <select id="relationship" required
-                tool-param-description="Select the relationship type">
+                toolparamdescription="Select the relationship type">
                   <option value="">Select Relationship</option>
                 </select>
               </div>
@@ -76,7 +76,7 @@
                   type="text"
                   id="firstName"
                   placeholder="Enter first name"
-                  tool-param-description="Enter first name"
+                  toolparamdescription="Enter first name"
                   required
                 />
               </div>
@@ -88,14 +88,16 @@
                   type="text"
                   id="lastName"
                   placeholder="Enter last name"
-                  tool-param-description="Enter last name"
+                  toolparamdescription="Enter last name"
                   required
                 />
               </div>
 
               <div class="form-group">
                 <label for="dob"> Date of Birth </label>
-                <input type="date" id="dob" tool-param-description="Enter date of birth" />
+                <input 
+                  type="date" id="dob" 
+                  toolparamdescription="Enter date of birth" />
               </div>
             </div>
           </div>
@@ -109,12 +111,16 @@
               <div class="form-group">
                 <label for="phone"> Phone Number </label>
                 <input type="tel" id="phone" placeholder="+65 1234 5678"
-                tool-param-description="Enter phone number" />
+                toolparamdescription="Enter phone number" />
               </div>
 
               <div class="form-group">
                 <label for="email"> Email Address </label>
-                <input type="email" id="email" placeholder="name@example.com" tool-param-description="Enter email address" />
+                <input 
+                  type="email" 
+                  id="email" 
+                  placeholder="name@example.com"
+                  toolparamdescriptionn="Enter email address" />
               </div>
             </div>
           </div>
@@ -128,7 +134,10 @@
               <div class="form-group full">
                 <label for="connectedPerson"> Connect With </label>
 
-                <select id="connectedPerson" tool-param-description="Select the family member this person is related to">
+                <select 
+                  id="connectedPerson" 
+                  toolparamdescription="Select the family member this person is related to"
+                  >
                   <option value="">No existing connection</option>
                 </select>
               </div>
@@ -154,7 +163,6 @@
       <section class="tree-section">
         <div class="tree-header">
           <h2>Relationship Tree</h2>
-
           <button type="button" class="btn btn-danger" id="clearBtn">
             Clear All
           </button>
