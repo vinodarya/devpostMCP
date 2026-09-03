@@ -14,12 +14,9 @@
         <p>Manage your family and professional relationships</p>
       </div>
     </header>
- <form action="about.html" method="GET" 
-        toolname="navigate_to_about_page" 
-        tooldescription="Navigates the browser directly to the About page"
-        toolautosubmit>
-        <button type="submit" class="btn btn-primary" >Go to About</button>
-         </form>
+      <button type="submit" class="btn btn-primary">Go to About</button>
+    </form>
+
     <main class="container">
       <div class="top-bar">
         <h2>My Relationship Network</h2>
@@ -45,20 +42,19 @@
             <div class="form-grid">
               <div class="form-group">
                 <label for="category"> Category </label>
+                <select id="category" required
+                tool-param-description="Select the relationship category">
 
-                <select id="category" required>
                   <option value="">Select Category</option>
-
                   <option value="family">Family</option>
-
                   <option value="professional">Professional</option>
                 </select>
               </div>
 
               <div class="form-group">
                 <label for="relationship"> Relationship </label>
-
-                <select id="relationship" required>
+                <select id="relationship" required
+                tool-param-description="Select the relationship type">
                   <option value="">Select Relationship</option>
                 </select>
               </div>
@@ -80,6 +76,7 @@
                   type="text"
                   id="firstName"
                   placeholder="Enter first name"
+                  tool-param-description="Enter first name"
                   required
                 />
               </div>
@@ -91,14 +88,14 @@
                   type="text"
                   id="lastName"
                   placeholder="Enter last name"
+                  tool-param-description="Enter last name"
                   required
                 />
               </div>
 
               <div class="form-group">
                 <label for="dob"> Date of Birth </label>
-
-                <input type="date" id="dob" />
+                <input type="date" id="dob" tool-param-description="Enter date of birth" />
               </div>
             </div>
           </div>
@@ -111,14 +108,13 @@
             <div class="form-grid">
               <div class="form-group">
                 <label for="phone"> Phone Number </label>
-
-                <input type="tel" id="phone" placeholder="+65 1234 5678" />
+                <input type="tel" id="phone" placeholder="+65 1234 5678"
+                tool-param-description="Enter phone number" />
               </div>
 
               <div class="form-group">
                 <label for="email"> Email Address </label>
-
-                <input type="email" id="email" placeholder="name@example.com" />
+                <input type="email" id="email" placeholder="name@example.com" tool-param-description="Enter email address" />
               </div>
             </div>
           </div>
@@ -132,7 +128,7 @@
               <div class="form-group full">
                 <label for="connectedPerson"> Connect With </label>
 
-                <select id="connectedPerson">
+                <select id="connectedPerson" tool-param-description="Select the family member this person is related to">
                   <option value="">No existing connection</option>
                 </select>
               </div>
