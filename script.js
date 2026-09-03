@@ -934,17 +934,67 @@ clearBtn.addEventListener("click", () => {
   if (!confirmed) {
     return;
   }
+  clearAllContacts();
+});
 
+function clearAllContacts() {
   localStorage.removeItem(STORAGE_KEY);
 
   resetForm();
-
   renderRelationshipTree();
-
   updateConnectedPersonDropdown();
 
   showNotification("All contacts have been deleted.");
-});
+}
+
+// WebMCP Imperative API
+if (document.modelContext) {
+  document.modelContext.registerTool({
+    name: "clear_all_contacts",
+
+    title: "Clear all contacts",
+
+    description:
+      "Permanently delete all contacts from the contact list. " +
+      "This is a destructive action and cannot be undone.",
+
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false,
+    },
+
+    annotations: {
+      readOnlyHint: false,
+    },
+
+    execute: async () => {
+      const contacts = getContacts();
+
+      if (contacts.length === 0) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: "There are no contacts to delete.",
+            },
+          ],
+        };
+      }
+
+      clearAllContacts();
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Successfully deleted ${contacts.length} contact(s).`,
+          },
+        ],
+      };
+    },
+  });
+}
 
 /* =====================================
 INITIALIZE
