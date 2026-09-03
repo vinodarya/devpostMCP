@@ -297,7 +297,29 @@ if ("modelContext" in document) {
 
     inputSchema: {
       type: "object",
-      properties: {},
+      properties: {
+        firstName: {
+                type: "string",
+                description: "The first name of the contact."
+            },
+            lastName: {
+                type: "string",
+                description: "The last name of the contact."
+            },
+        dob: {
+                type: "date",
+                description: "Enter date of birth"
+            },
+        phone: {
+                type: "tel",
+                description: "Enter phone number"
+            },
+        email: {
+                type: "email",
+                description: "Enter email address"
+            },
+        required: ["firstName", "lastName"]
+      },
       additionalProperties: false,
     },
 
