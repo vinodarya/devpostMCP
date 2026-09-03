@@ -9,8 +9,7 @@ const DEMO_INITIALIZED_KEY = "familyRelationshipNetworkDemoInitialized";
 Declarative WebMCP Form Annotation
 ====================================== */
 function enableMCP() {
-  alert("hello");
-
+  
   const myForm = document.querySelector("#contactForm");
 
   if (!myForm) {
@@ -24,7 +23,6 @@ function enableMCP() {
 
   console.log("MCP enabled on:", myForm);
 
-  alert("hello2");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
