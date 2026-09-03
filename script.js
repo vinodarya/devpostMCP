@@ -9,7 +9,6 @@ const DEMO_INITIALIZED_KEY = "familyRelationshipNetworkDemoInitialized";
 Declarative WebMCP Form Annotation
 ====================================== */
 function enableMCP() {
-  
   const myForm = document.querySelector("#contactForm");
 
   if (!myForm) {
@@ -17,65 +16,99 @@ function enableMCP() {
     return;
   }
 
-/*
-   * Add WebMCP attributes to the form.
-   *
-   * HTML does not need to contain toolname/tooldescription.
-   * JavaScript adds them dynamically.
-   */
-  myForm.setAttribute("toolname", "add_contact");
-  myForm.setAttribute(
-    "tooldescription",
-    "Add a new family or professional contact to the relationship network."
-  );
-  /*
-   * Add names to the form controls.
-   *
-   * The name attribute is important because it identifies
-   * the fields that WebMCP should expose as tool arguments.
-   */
-  const fields = {
-    firstName: document.getElementById("firstName"),
-    lastName: document.getElementById("lastName"),
-    dob: document.getElementById("dob"),
-    phone: document.getElementById("phone"),
-    email: document.getElementById("email"),
-    category: document.getElementById("category"),
-    relationship: document.getElementById("relationship"),
-    parentId: document.getElementById("connectedPerson"),
-  };
-
-  Object.entries(fields).forEach(([name, element]) => {
-    if (!element) {
-      console.warn(`WebMCP field not found: #${name}`);
-      return;
-    }
-
-    element.setAttribute("name", name);
-  });
-
-  /*
-   * Make sure the submit button is associated with the form.
-   */
-  const submitButton = myForm.querySelector(
-    'button[type="submit"], input[type="submit"]'
-  );
-
-  if (submitButton) {
-    submitButton.setAttribute(
-      "toolname",
-      "add_contact"
-    );
+  if (!document.modelContext) {
+    console.error("ModelContext API not available.");
+    return;
   }
 
-  console.log("Declarative WebMCP enabled on:", myForm);
-  console.log("WebMCP input arguments:", fields);
+  document.modelContext.registerTool({
+    name: "add_contact",
+    title: "Add Contact",
+    description: "Submit a new contact to the family relationship network with name, relationship, and contact details.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        firstName: {
+          type: "string",
+          description: "First name of the contact"
+        },
+        lastName: {
+          type: "string",
+          description: "Last name of the contact"
+        },
+        category: {
+          type: "string",
+          enum: ["family", "professional"],
+          description: "Relationship category"
+        },
+        relationship: {
+          type: "string",
+          description: "Type of relationship"
+        },
+        dob: {
+          type: "string",
+          description: "Date of birth (YYYY-MM-DD format)"
+        },
+        phone: {
+          type: "string",
+          description: "Phone number"
+        },
+        email: {
+          type: "string",
+          description: "Email address"
+        },
+        parentId: {
+          type: "string",
+          description: "ID of connected family member (for family category)"
+        }
+      },
+      required: ["firstName", "lastName", "category", "relationship"],
+      additionalProperties: false
+    },
+    annotations: {
+      readOnlyHint: false
+    },
+    execute: async (params) => {
+      const contacts = getContacts();
+      const validation = validateFamilyRelationship(contacts, params.relationship, params.parentId);
 
+      if (!validation.valid) {
+        return {
+          content: [{
+            type: "text",
+            text: `Error: ${validation.message}`
+          }]
+        };
+      }
+
+      const newContact = {
+        id: createId(),
+        firstName: params.firstName,
+        lastName: params.lastName,
+        dob: params.dob || "",
+        phone: params.phone || "",
+        email: params.email || "",
+        category: params.category,
+        relationship: params.relationship,
+        parentId: params.category === "family" ? (params.parentId || null) : null,
+        createdAt: new Date().toISOString()
+      };
+
+      contacts.push(newContact);
+      saveContacts(contacts);
+      renderRelationshipTree();
+
+      return {
+        content: [{
+          type: "text",
+          text: `Successfully added ${params.firstName} ${params.lastName} as ${params.relationship}.`
+        }]
+      };
+    }
+  });
+
+  console.log("MCP tools registered on contact form");
 }
-
-/* =====================================
-ENABLE MCP BUTTON
-====================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
   const enableMcpBtn = document.querySelector("#enableMcpBtn");
@@ -349,54 +382,7 @@ if ("modelContext" in document) {
 
     inputSchema: {
       type: "object",
-      properties: {
-        firstName: {
-                type: "string",
-                description: "The first name of the contact."
-            },
-            lastName: {
-                type: "string",
-                description: "The last name of the contact."
-            },
-        dob: {
-            type: "string",
-            format: "date",
-            description: "The contact's date of birth."
-        },
-
-        phone: {
-            type: "string",
-            description: "The contact's phone number."
-        },
-
-        email: {
-            type: "string",
-            format: "email",
-            description: "The contact's email address."
-        },
-
-        category: {
-            type: "string",
-            enum: ["family", "professional"],
-            description: "The relationship category."
-        },
-
-        relationship: {
-            type: "string",
-            description: "The contact's relationship."
-        },
-        parentId: {
-            type: ["string", "null"],
-            description: "The ID of the family member this contact is connected to."
-        }
-      }, 
-        required: [
-        "firstName",
-        "lastName",
-        "category",
-        "relationship"
-    ]
-      },
+      properties: {},
       additionalProperties: false,
     },
 
@@ -404,17 +390,7 @@ if ("modelContext" in document) {
       readOnlyHint: false,
     },
 
-    execute: async ({
-    firstName,
-    lastName,
-    dob,
-    phone,
-    email,
-    category,
-    relationship,
-    parentId
-      
-    }) => {
+    execute: async () => {
       return openAddContactForm();
     },
   });
@@ -733,9 +709,8 @@ contactForm.addEventListener("submit", (event) => {
   const selectedCategory = category.value;
   const selectedRelationship = relationship.value;
 
-  const parentId = connectedPerson.setAttribute("name", "parentId");
+  const parentId = connectedPerson.value || null;
 
-  
   /* Basic validation */
 
   if (!firstName || !lastName) {
@@ -764,18 +739,6 @@ contactForm.addEventListener("submit", (event) => {
 
       return;
     }
-  }
-
-  /* Prevent duplicate You */
-
-  if (
-    selectedCategory === "family" &&
-    selectedRelationship === "You" &&
-    getYou(contacts)
-  ) {
-    showNotification("A You profile already exists.", true);
-
-    return;
   }
 
   /* Create contact */
